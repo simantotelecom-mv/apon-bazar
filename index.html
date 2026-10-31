@@ -3,59 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>APON SHOP - হিসাব ও কাস্টমার ম্যানেজমেন্ট</title>
-  <!-- Tailwind CSS & Google Fonts -->
+  <title>আপন শপ (APON SHOP)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: 'Hind Siliguri', sans-serif; background-color: #F8FAFC; }
+    body { font-family: 'Hind Siliguri', sans-serif; background-color: #0F172A; min-height: 100vh; }
+    .app-screen { background-color: #F8FAFC; }
     .tabular { font-variant-numeric: tabular-nums; }
   </style>
 </head>
-<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+<body class="text-slate-800 antialiased">
 
-  <!-- ==================== ১. সেটআপ স্ক্রিন (যদি প্রথমবার খোলা হয়) ==================== -->
-  <div id="setup-screen" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-900">
+  <!-- ==================== ১. সেটআপ ভিউ (ডিফল্টভাবে চালু থাকবে, সাদা স্ক্রিন হবে না) ==================== -->
+  <div id="view-setup" class="min-h-screen flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-200">
       <div class="text-center mb-6">
-        <h1 class="text-2xl font-bold text-slate-800">আপন শপ সিস্টেম সেটআপ</h1>
-        <p class="text-sm text-slate-500 mt-1">আপনার Supabase চাবি দিয়ে অ্যাপটি যুক্ত করুন</p>
+        <h1 class="text-2xl font-bold text-slate-900">আপন শপ সিস্টেম সেটআপ</h1>
+        <p class="text-xs text-slate-500 mt-1">আপনার Supabase চাবি দিয়ে অ্যাপটি চালু করুন</p>
       </div>
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Project URL</label>
-          <input id="setup-url" type="text" placeholder="https://xxxx.supabase.co" class="w-full px-4 py-3 border rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Project URL</label>
+          <input id="setup-url" type="text" placeholder="https://xxxx.supabase.co" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Publishable Key (Anon Key)</label>
-          <input id="setup-key" type="password" placeholder="লম্বা কোডটি এখানে পেস্ট করুন" class="w-full px-4 py-3 border rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Publishable Key (Anon Key)</label>
+          <input id="setup-key" type="password" placeholder="লম্বা কোডটি এখানে পেস্ট করুন" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
         </div>
         <button onclick="saveSupabaseConfig()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition">সংরক্ষণ করে এগিয়ে যান</button>
       </div>
     </div>
   </div>
 
-  <!-- ==================== ২. অথেনটিকেশন / লগইন স্ক্রিন ==================== -->
-  <div id="auth-screen" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-900">
+  <!-- ==================== ২. লগইন / সাইনআপ ভিউ ==================== -->
+  <div id="view-auth" class="hidden min-h-screen flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-200">
       <div class="text-center mb-6">
         <div class="inline-block p-3 bg-blue-50 text-blue-600 rounded-full mb-2">
           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
         </div>
         <h2 class="text-2xl font-bold text-slate-900">দোকান লগইন</h2>
-        <p class="text-sm text-slate-500">আপনার শপের ইমেইল ও পাসওয়ার্ড দিন</p>
+        <p class="text-xs text-slate-500 mt-1">আপনার দোকানের ইমেইল ও পাসওয়ার্ড দিন</p>
       </div>
 
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">ইমেইল ঠিকানা</label>
-          <input id="auth-email" type="email" placeholder="shop@email.com" class="w-full px-4 py-3 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-xs font-bold text-slate-700 mb-1">ইমেইল ঠিকানা</label>
+          <input id="auth-email" type="email" placeholder="shop@email.com" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">পাসওয়ার্ড</label>
-          <input id="auth-password" type="password" placeholder="কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড" class="w-full px-4 py-3 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-xs font-bold text-slate-700 mb-1">পাসওয়ার্ড</label>
+          <input id="auth-password" type="password" placeholder="কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
         </div>
 
         <button onclick="handleLogin()" id="btn-login" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-3.5 rounded-xl shadow-lg transition">লগইন করুন</button>
@@ -65,9 +64,8 @@
     </div>
   </div>
 
-  <!-- ==================== ৩. মূল অ্যাপ ড্যাশবোর্ড ==================== -->
-  <div id="main-app" class="hidden flex-1 flex flex-col">
-    <!-- টপ হেডার -->
+  <!-- ==================== ৩. মূল ড্যাশবোর্ড ==================== -->
+  <div id="view-app" class="hidden min-h-screen app-screen flex flex-col justify-between">
     <header class="bg-slate-900 text-white px-4 py-3.5 sticky top-0 z-30 shadow-md">
       <div class="max-w-4xl mx-auto flex items-center justify-between">
         <div>
@@ -78,10 +76,8 @@
       </div>
     </header>
 
-    <!-- মূল বডি কন্টেন্ট -->
     <main class="max-w-4xl mx-auto w-full p-4 flex-1">
-      
-      <!-- সামারি কার্ড -->
+      <!-- স্ট্যাটাস কার্ড -->
       <div class="grid grid-cols-2 gap-3 mb-5">
         <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
           <p class="text-xs text-slate-500">মোট কাস্টমার</p>
@@ -93,10 +89,10 @@
         </div>
       </div>
 
-      <!-- সার্চ ও নতুন কাস্টমার বাটন -->
+      <!-- সার্চ ও কাস্টমার বাটন -->
       <div class="flex gap-2 mb-4">
         <div class="relative flex-1">
-          <input id="search-input" oninput="filterCustomers()" type="text" placeholder="কাস্টমারের নাম বা ফোন দিয়ে খুঁজুন..." class="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500">
+          <input id="search-input" oninput="filterCustomers()" type="text" placeholder="কাস্টমারের নাম বা ফোন দিয়ে খুঁজুন..." class="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
           <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
         </div>
         <button onclick="openCustomerModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center gap-1 shadow-sm shrink-0">
@@ -104,14 +100,14 @@
         </button>
       </div>
 
-      <!-- কাস্টমার লিস্ট -->
+      <!-- লিস্ট -->
       <div id="customer-list" class="space-y-3">
         <div class="text-center py-10 text-slate-400 text-sm">কাস্টমার ডাটা লোড হচ্ছে...</div>
       </div>
     </main>
   </div>
 
-  <!-- ==================== ৪. নতুন কাস্টমার যোগ করার মোডাল ==================== -->
+  <!-- ==================== ৪. কাস্টমার মোডাল ==================== -->
   <div id="customer-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4 pb-2 border-b">
@@ -122,25 +118,25 @@
       <div class="space-y-3 text-sm">
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">কাস্টমারের পুরো নাম *</label>
-          <input id="cust-name" type="text" placeholder="যেমন: জসিম উদ্দিন" class="w-full px-3 py-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+          <input id="cust-name" type="text" placeholder="যেমন: জসিম উদ্দিন" class="w-full px-3 py-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-600">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">মালদ্বীপ ফোন (+960)</label>
-            <input id="cust-phone-mv" type="tel" placeholder="7xxxxxx" class="w-full px-3 py-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            <input id="cust-phone-mv" type="tel" placeholder="7xxxxxx" class="w-full px-3 py-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-600">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">বাংলাদেশ ফোন (+880)</label>
-            <input id="cust-phone-bd" type="tel" placeholder="017xxxxxxxx" class="w-full px-3 py-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            <input id="cust-phone-bd" type="tel" placeholder="017xxxxxxxx" class="w-full px-3 py-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-600">
           </div>
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">পূর্বের কোনো বকেয়া থাকলে (MVR)</label>
-          <input id="cust-initial-balance" type="number" step="0.01" placeholder="0.00" class="w-full px-3 py-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+          <input id="cust-initial-balance" type="number" step="0.01" placeholder="0.00" class="w-full px-3 py-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-600">
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">কাস্টমারের ঠিকানা বা নোট</label>
-          <input id="cust-notes" type="text" placeholder="যেমন: মালে রুম নং ৪ বা দ্বীপের নাম" class="w-full px-3 py-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+          <input id="cust-notes" type="text" placeholder="যেমন: মালে রুম নং ৪ বা দ্বীপের নাম" class="w-full px-3 py-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-600">
         </div>
 
         <button onclick="saveNewCustomer()" id="btn-save-cust" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition">কাস্টমার সংরক্ষণ করুন</button>
@@ -148,62 +144,58 @@
     </div>
   </div>
 
-  <!-- স্ক্রিপ্ট লজিক -->
   <script>
-    let supabase = null;
+    let clientSupabase = null;
     let currentUser = null;
     let customersData = [];
 
-    window.onload = function() {
+    // পেজ লোড হলে রান হবে
+    document.addEventListener("DOMContentLoaded", function() {
       const savedUrl = localStorage.getItem('APON_SB_URL');
       const savedKey = localStorage.getItem('APON_SB_KEY');
 
-      if (!savedUrl || !savedKey) {
-        document.getElementById('setup-screen').classList.remove('hidden');
-      } else {
+      if (savedUrl && savedKey) {
+        document.getElementById('view-setup').classList.add('hidden');
         initSupabase(savedUrl, savedKey);
       }
-    };
+    });
 
     function saveSupabaseConfig() {
       const url = document.getElementById('setup-url').value.trim();
       const key = document.getElementById('setup-key').value.trim();
       if (!url || !key) {
-        alert("দয়া করে Project URL এবং Key দুটোই সঠিকভাবে দিন!");
+        alert("Project URL এবং Key দুটোই দিন!");
         return;
       }
       localStorage.setItem('APON_SB_URL', url);
       localStorage.setItem('APON_SB_KEY', key);
-      document.getElementById('setup-screen').classList.add('hidden');
+      document.getElementById('view-setup').classList.add('hidden');
       initSupabase(url, key);
     }
 
     async function initSupabase(url, key) {
       try {
-        supabase = window.supabase.createClient(url, key);
-        const { data: { session } } = await supabase.auth.getSession();
+        clientSupabase = window.supabase.createClient(url, key);
+        const { data: { session } } = await clientSupabase.auth.getSession();
         if (session) {
           currentUser = session.user;
-          showMainApp();
+          showView('view-app');
+          fetchCustomers();
         } else {
-          showAuthScreen();
+          showView('view-auth');
         }
       } catch (err) {
-        alert("Supabase সংযোগে সমস্যা হয়েছে! তথ্যগুলো সঠিক কিনা পরীক্ষা করুন।");
+        alert("কানেকশনে সমস্যা! আবার তথ্য দিন।");
         localStorage.clear();
-        location.reload();
+        showView('view-setup');
       }
     }
 
-    function showAuthScreen() {
-      document.getElementById('auth-screen').classList.remove('hidden');
-      document.getElementById('main-app').classList.add('hidden');
-    }
-
-    function showMainApp() {
-      document.getElementById('auth-screen').classList.add('hidden');
-      document.getElementById('main-app').classList.remove('hidden');
-      fetchCustomers();
+    function showView(viewId) {
+      document.getElementById('view-setup').classList.add('hidden');
+      document.getElementById('view-auth').classList.add('hidden');
+      document.getElementById('view-app').classList.add('hidden');
+      document.getElementById(viewId).classList.remove('hidden');
     }
 
     async function handleLogin() {
@@ -218,13 +210,14 @@
         return;
       }
 
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await clientSupabase.auth.signInWithPassword({ email, password });
       if (error) {
-        errBox.innerText = "ভুল ইমেইল বা পাসওয়ার্ড: " + error.message;
+        errBox.innerText = "ভুল তথ্য: " + error.message;
         errBox.classList.remove('hidden');
       } else {
         currentUser = data.user;
-        showMainApp();
+        showView('view-app');
+        fetchCustomers();
       }
     }
 
@@ -235,36 +228,36 @@
       errBox.classList.add('hidden');
 
       if (!email || password.length < 6) {
-        errBox.innerText = "সঠিক ইমেইল এবং অন্তত ৬ সংখ্যার পাসওয়ার্ড দিন!";
+        errBox.innerText = "সঠিক ইমেইল এবং অন্তত ৬ অক্ষরের পাসওয়ার্ড দিন!";
         errBox.classList.remove('hidden');
         return;
       }
 
-      const { data, error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await clientSupabase.auth.signUp({ email, password });
       if (error) {
         errBox.innerText = error.message;
         errBox.classList.remove('hidden');
       } else {
-        alert("অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে! এখন লগইন করুন।");
+        alert("অ্যাকাউন্ট তৈরি হয়েছে! এবার 'লগইন করুন' চাপুন।");
       }
     }
 
     async function handleLogout() {
-      await supabase.auth.signOut();
+      await clientSupabase.auth.signOut();
       currentUser = null;
-      location.reload();
+      showView('view-auth');
     }
 
     async function fetchCustomers() {
       const listEl = document.getElementById('customer-list');
-      const { data, error } = await supabase
+      const { data, error } = await clientSupabase
         .from('customers')
         .select('*')
         .eq('shop_id', currentUser.id)
         .order('created_at', { ascending: false });
 
       if (error) {
-        listEl.innerHTML = `<p class="text-rose-500 text-center">ডাটা লোড করা যায়নি: ${error.message}</p>`;
+        listEl.innerHTML = `<p class="text-rose-500 text-center text-sm py-4">ডাটা লোড হয়নি: ${error.message}</p>`;
         return;
       }
 
@@ -283,8 +276,8 @@
       const listEl = document.getElementById('customer-list');
       if (list.length === 0) {
         listEl.innerHTML = `
-          <div class="bg-white p-8 rounded-xl text-center border border-dashed border-slate-300">
-            <p class="text-slate-400">এখনো কোনো কাস্টমার যুক্ত করা হয়নি।</p>
+          <div class="bg-white p-6 rounded-xl text-center border border-dashed border-slate-300">
+            <p class="text-slate-400 text-sm">কোনো কাস্টমার নেই।</p>
             <button onclick="openCustomerModal()" class="mt-2 text-sm text-blue-600 font-bold">+ প্রথম কাস্টমার যোগ করুন</button>
           </div>
         `;
@@ -292,8 +285,6 @@
       }
 
       listEl.innerHTML = list.map(c => {
-        const mvPhone = c.phone_mv ? `+960${c.phone_mv}` : '';
-        const bdPhone = c.phone_bd ? `+880${c.phone_bd}` : '';
         const due = parseFloat(c.current_balance) || 0;
         const dueClass = due > 0 ? 'text-rose-600 font-bold' : 'text-emerald-600 font-bold';
 
@@ -302,10 +293,10 @@
             <div class="flex justify-between items-start">
               <div>
                 <h4 class="font-bold text-slate-800 text-base">${c.full_name}</h4>
-                <p class="text-xs text-slate-500 mt-0.5">${c.address || c.notes || 'কোনো ঠিকানা নেই'}</p>
+                <p class="text-xs text-slate-500 mt-0.5">${c.address || c.notes || 'কোনো নোট নেই'}</p>
                 <div class="flex flex-wrap gap-2 mt-2">
-                  ${c.phone_mv ? `<span class="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded">🇲🇻 ${c.phone_mv}</span>` : ''}
-                  ${c.phone_bd ? `<span class="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded">🇧🇩 ${c.phone_bd}</span>` : ''}
+                  ${c.phone_mv ? `<span class="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded">🇲🇻 +960 ${c.phone_mv}</span>` : ''}
+                  ${c.phone_bd ? `<span class="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded">🇧🇩 +880 ${c.phone_bd}</span>` : ''}
                 </div>
               </div>
               <div class="text-right">
@@ -317,7 +308,7 @@
             <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
               <div class="flex gap-2">
                 ${c.phone_mv ? `
-                  <a href="https://wa.me/960${c.phone_mv}?text=আসসালামু%20আলাইকুম%20${encodeURIComponent(c.full_name)}%2C%20আপন%20শপে%20আপনার%20বকেয়া%20রয়েছে%20${due}%20MVR।" target="_blank" class="bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg font-medium flex items-center gap-1 border border-emerald-200">
+                  <a href="https://wa.me/960${c.phone_mv}?text=আসসালামু%20আলাইকুম%20${encodeURIComponent(c.full_name)}%2C%20আপন%20শপে%20আপনার%20বকেয়া%20রয়েছে%20${due}%20MVR।" target="_blank" class="bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg font-medium border border-emerald-200">
                     হোয়াটসঅ্যাপ
                   </a>
                 ` : ''}
@@ -332,11 +323,11 @@
     }
 
     function filterCustomers() {
-      const query = document.getElementById('search-input').value.toLowerCase();
+      const q = document.getElementById('search-input').value.toLowerCase();
       const filtered = customersData.filter(c => 
-        c.full_name.toLowerCase().includes(query) ||
-        (c.phone_mv && c.phone_mv.includes(query)) ||
-        (c.phone_bd && c.phone_bd.includes(query))
+        c.full_name.toLowerCase().includes(q) ||
+        (c.phone_mv && c.phone_mv.includes(q)) ||
+        (c.phone_bd && c.phone_bd.includes(q))
       );
       renderCustomerList(filtered);
     }
@@ -349,9 +340,9 @@
     }
 
     function copyImo(name, phone, due) {
-      const msg = `আসসালামু আলাইকুম ${name},\nআপন শপে আপনার বর্তমান বকেয়া: ${due} MVR।\nযোগাযোগ নম্বর: ${phone}`;
+      const msg = `আসসালামু আলাইকুম ${name},\nআপন শপে আপনার বর্তমান বকেয়া: ${due} MVR।\nফোন: ${phone}`;
       navigator.clipboard.writeText(msg);
-      alert("IMO মেসেজ ও নম্বর সফলভাবে কপি হয়েছে! এখন IMO খুলে পেস্ট করে পাঠিয়ে দিন।");
+      alert("IMO মেসেজ কপি হয়েছে!");
     }
 
     async function saveNewCustomer() {
@@ -362,15 +353,15 @@
       const notes = document.getElementById('cust-notes').value.trim();
 
       if (!name) {
-        alert("কাস্টমারের নাম অবশ্যই দিতে হবে!");
+        alert("কাস্টমারের নাম দিন!");
         return;
       }
 
-      const saveBtn = document.getElementById('btn-save-cust');
-      saveBtn.innerText = "সংরক্ষণ হচ্ছে...";
-      saveBtn.disabled = true;
+      const btn = document.getElementById('btn-save-cust');
+      btn.innerText = "সংরক্ষণ হচ্ছে...";
+      btn.disabled = true;
 
-      const { data, error } = await supabase
+      const { data, error } = await clientSupabase
         .from('customers')
         .insert([{
           shop_id: currentUser.id,
@@ -383,10 +374,10 @@
         .select();
 
       if (error) {
-        alert("কাস্টমার সেভ করা যায়নি: " + error.message);
+        alert("কাস্টমার সেভ হয়নি: " + error.message);
       } else {
         if (initBal > 0 && data && data[0]) {
-          await supabase.from('transactions').insert([{
+          await clientSupabase.from('transactions').insert([{
             shop_id: currentUser.id,
             customer_id: data[0].id,
             transaction_type: 'CREDIT',
@@ -398,7 +389,6 @@
             description: 'পূর্বের বকেয়া (Opening Balance)'
           }]);
         }
-
         document.getElementById('cust-name').value = '';
         document.getElementById('cust-phone-mv').value = '';
         document.getElementById('cust-phone-bd').value = '';
@@ -408,8 +398,8 @@
         fetchCustomers();
       }
 
-      saveBtn.innerText = "কাস্টমার সংরক্ষণ করুন";
-      saveBtn.disabled = false;
+      btn.innerText = "কাস্টমার সংরক্ষণ করুন";
+      btn.disabled = false;
     }
   </script>
 </body>
