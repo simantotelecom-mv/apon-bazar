@@ -15,20 +15,21 @@
 </head>
 <body class="text-slate-800 antialiased">
 
-  <!-- ==================== ১. সেটআপ ভিউ (ডিফল্টভাবে চালু থাকবে, সাদা স্ক্রিন হবে না) ==================== -->
+  <!-- ==================== ১. সেটআপ ভিউ ==================== -->
   <div id="view-setup" class="min-h-screen flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-200">
       <div class="text-center mb-6">
         <h1 class="text-2xl font-bold text-slate-900">আপন শপ সিস্টেম সেটআপ</h1>
-        <p class="text-xs text-slate-500 mt-1">আপনার Supabase চাবি দিয়ে অ্যাপটি চালু করুন</p>
+        <p class="text-xs text-slate-500 mt-1">আপনার Supabase তথ্য দিয়ে অ্যাপটি যুক্ত করুন</p>
       </div>
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Project URL</label>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Project URL *</label>
           <input id="setup-url" type="text" placeholder="https://xxxx.supabase.co" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
+          <p class="text-[10px] text-slate-400 mt-1">শেষে /rest/v1 থাকলেও সমস্যা নেই, স্বয়ংক্রিয়ভাবে ঠিক হয়ে যাবে।</p>
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Publishable Key (Anon Key)</label>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Publishable Key (Anon Key) *</label>
           <input id="setup-key" type="password" placeholder="লম্বা কোডটি এখানে পেস্ট করুন" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
         </div>
         <button onclick="saveSupabaseConfig()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition">সংরক্ষণ করে এগিয়ে যান</button>
@@ -60,7 +61,13 @@
         <button onclick="handleLogin()" id="btn-login" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-3.5 rounded-xl shadow-lg transition">লগইন করুন</button>
         <button onclick="handleSignup()" id="btn-signup" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-3 rounded-xl transition text-sm">নতুন দোকান একাউন্ট তৈরি করুন</button>
       </div>
+
       <p id="auth-error" class="text-rose-500 text-xs text-center mt-3 hidden"></p>
+      
+      <!-- রিসেট বাটন -->
+      <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+        <button onclick="resetSetup()" class="text-xs text-slate-400 hover:text-slate-600">⚙️ চাবি বা URL পরিবর্তন করতে এখানে চাপুন</button>
+      </div>
     </div>
   </div>
 
@@ -77,7 +84,6 @@
     </header>
 
     <main class="max-w-4xl mx-auto w-full p-4 flex-1">
-      <!-- স্ট্যাটাস কার্ড -->
       <div class="grid grid-cols-2 gap-3 mb-5">
         <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
           <p class="text-xs text-slate-500">মোট কাস্টমার</p>
@@ -89,7 +95,6 @@
         </div>
       </div>
 
-      <!-- সার্চ ও কাস্টমার বাটন -->
       <div class="flex gap-2 mb-4">
         <div class="relative flex-1">
           <input id="search-input" oninput="filterCustomers()" type="text" placeholder="কাস্টমারের নাম বা ফোন দিয়ে খুঁজুন..." class="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
@@ -100,7 +105,6 @@
         </button>
       </div>
 
-      <!-- লিস্ট -->
       <div id="customer-list" class="space-y-3">
         <div class="text-center py-10 text-slate-400 text-sm">কাস্টমার ডাটা লোড হচ্ছে...</div>
       </div>
@@ -149,28 +153,54 @@
     let currentUser = null;
     let customersData = [];
 
-    // পেজ লোড হলে রান হবে
+    // URL স্বয়ংক্রিয়ভাবে ক্লিন করার লজিক
+    function sanitizeUrl(rawUrl) {
+      if (!rawUrl) return '';
+      let u = rawUrl.trim();
+      const dashMatch = u.match(/project\/([a-z0-9]+)/i);
+      if (dashMatch && dashMatch[1]) {
+        return `https://${dashMatch[1]}.supabase.co`;
+      }
+      if (!u.startsWith('http://') && !u.startsWith('https://')) {
+        u = 'https://' + u;
+      }
+      try {
+        const parsed = new URL(u);
+        return parsed.origin; // শুধু https://xxxx.supabase.co অংশটুকু রাখবে
+      } catch (e) {
+        return u.replace(/\/+$/, '').replace(/\/rest\/v1.*$/, '');
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
-      const savedUrl = localStorage.getItem('APON_SB_URL');
+      let savedUrl = localStorage.getItem('APON_SB_URL');
       const savedKey = localStorage.getItem('APON_SB_KEY');
 
       if (savedUrl && savedKey) {
+        savedUrl = sanitizeUrl(savedUrl);
+        localStorage.setItem('APON_SB_URL', savedUrl);
         document.getElementById('view-setup').classList.add('hidden');
         initSupabase(savedUrl, savedKey);
       }
     });
 
     function saveSupabaseConfig() {
-      const url = document.getElementById('setup-url').value.trim();
+      let url = document.getElementById('setup-url').value.trim();
       const key = document.getElementById('setup-key').value.trim();
       if (!url || !key) {
         alert("Project URL এবং Key দুটোই দিন!");
         return;
       }
+      url = sanitizeUrl(url);
       localStorage.setItem('APON_SB_URL', url);
       localStorage.setItem('APON_SB_KEY', key);
       document.getElementById('view-setup').classList.add('hidden');
       initSupabase(url, key);
+    }
+
+    function resetSetup() {
+      localStorage.clear();
+      location.reload();
     }
 
     async function initSupabase(url, key) {
@@ -185,9 +215,8 @@
           showView('view-auth');
         }
       } catch (err) {
-        alert("কানেকশনে সমস্যা! আবার তথ্য দিন।");
-        localStorage.clear();
-        showView('view-setup');
+        alert("কানেকশনে সমস্যা! চাবি পরিবর্তন করুন।");
+        resetSetup();
       }
     }
 
@@ -238,7 +267,7 @@
         errBox.innerText = error.message;
         errBox.classList.remove('hidden');
       } else {
-        alert("অ্যাকাউন্ট তৈরি হয়েছে! এবার 'লগইন করুন' চাপুন।");
+        alert("অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে! এবার 'লগইন করুন' বাটনে চাপ দিন।");
       }
     }
 
