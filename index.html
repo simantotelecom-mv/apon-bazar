@@ -56,7 +56,6 @@
         <div>
           <div class="flex justify-between items-center mb-1">
             <label class="text-xs font-bold text-slate-700">পাসওয়ার্ড</label>
-            <!-- পাসওয়ার্ড ভুলে গেছেন বাটন -->
             <button type="button" onclick="handleForgotPassword()" class="text-xs text-blue-600 hover:text-blue-800 font-semibold">পাসওয়ার্ড ভুলে গেছেন?</button>
           </div>
           <input id="auth-password" type="password" placeholder="কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
@@ -68,7 +67,6 @@
 
       <p id="auth-error" class="text-rose-500 text-xs text-center mt-3 hidden"></p>
       
-      <!-- রিসেট বাটন -->
       <div class="mt-6 pt-4 border-t border-slate-100 text-center">
         <button onclick="resetSetup()" class="text-xs text-slate-400 hover:text-slate-600">⚙️ চাবি বা URL পরিবর্তন করতে এখানে চাপুন</button>
       </div>
@@ -79,15 +77,18 @@
   <div id="view-reset-password" class="hidden min-h-screen flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-200">
       <div class="text-center mb-6">
-        <h2 class="text-xl font-bold text-slate-900">নতুন পাসওয়ার্ড দিন</h2>
-        <p class="text-xs text-slate-500 mt-1">আপনার দোকানের নতুন পাসওয়ার্ড সেট করুন</p>
+        <div class="inline-block p-3 bg-emerald-50 text-emerald-600 rounded-full mb-2">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900">নতুন পাসওয়ার্ড সেট করুন</h2>
+        <p class="text-xs text-slate-500 mt-1">আপনার দোকানের অ্যাকাউন্টের জন্য নতুন পাসওয়ার্ড দিন</p>
       </div>
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">নতুন পাসওয়ার্ড</label>
-          <input id="new-password" type="password" placeholder="কমপক্ষে ৬ অক্ষরের নতুন পাসওয়ার্ড" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-600">
+          <label class="block text-xs font-bold text-slate-700 mb-1">নতুন পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)</label>
+          <input id="new-password" type="password" placeholder="নতুন শক্তিশালী পাসওয়ার্ড লিখুন" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-600">
         </div>
-        <button onclick="updateNewPassword()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition">পাসওয়ার্ড পরিবর্তন করুন</button>
+        <button onclick="updateNewPassword()" id="btn-update-pass" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition">পাসওয়ার্ড পরিবর্তন ও সংরক্ষণ</button>
       </div>
     </div>
   </div>
@@ -173,6 +174,7 @@
     let clientSupabase = null;
     let currentUser = null;
     let customersData = [];
+    let isResettingPassword = false;
 
     function sanitizeUrl(rawUrl) {
       if (!rawUrl) return '';
@@ -193,6 +195,13 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
+      // ১. লিংকে রিকভারি টোকেন আছে কি না তা আগে চিহ্নিত করা
+      const hash = window.location.hash || '';
+      const query = window.location.search || '';
+      if (hash.includes('type=recovery') || query.includes('type=recovery')) {
+        isResettingPassword = true;
+      }
+
       let savedUrl = localStorage.getItem('APON_SB_URL');
       const savedKey = localStorage.getItem('APON_SB_KEY');
 
@@ -201,6 +210,11 @@
         localStorage.setItem('APON_SB_URL', savedUrl);
         document.getElementById('view-setup').classList.add('hidden');
         initSupabase(savedUrl, savedKey);
+      } else {
+        // যদি অন্য ব্রাউজারে লিংক খোলে যেখানে সেটিংস নেই
+        if (isResettingPassword) {
+          alert("পাসওয়ার্ড রিসেট করতে অনুগ্রহ করে প্রথমে আপনার Supabase Project URL এবং Key দিন (এটি মাত্র একবার দিতে হবে)।");
+        }
       }
     });
 
@@ -230,9 +244,16 @@
         // পাসওয়ার্ড রিকভারি ইভেন্ট লিসেনার
         clientSupabase.auth.onAuthStateChange(async (event, session) => {
           if (event === 'PASSWORD_RECOVERY') {
+            isResettingPassword = true;
             showView('view-reset-password');
           }
         });
+
+        // যদি URL-এ recovery টোকেন থাকে, তাহলে জোরপূর্বক পাসওয়ার্ড রিসেট স্ক্রিন দেখাবে
+        if (isResettingPassword) {
+          showView('view-reset-password');
+          return;
+        }
 
         const { data: { session } } = await clientSupabase.auth.getSession();
         if (session) {
@@ -312,15 +333,18 @@
         return;
       }
 
+      // সঠিক সাইট লিংকে রিডাইরেক্ট পাঠাবে
+      const currentFullUrl = window.location.href.split('#')[0].split('?')[0];
+
       const { error } = await clientSupabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + window.location.pathname,
+        redirectTo: currentFullUrl,
       });
 
       if (error) {
         errBox.innerText = "লিংক পাঠানো যায়নি: " + error.message;
         errBox.classList.remove('hidden');
       } else {
-        alert("আপনার ইমেইলে পাসওয়ার্ড রিসেট করার লিংক পাঠানো হয়েছে!\nঅনুগ্রহ করে আপনার ইনবক্স অথবা স্প্যাম (Spam) ফোল্ডার চেক করুন।");
+        alert("আপনার ইমেইলে পাসওয়ার্ড রিসেট করার লিংক পাঠানো হয়েছে!\nঅনুগ্রহ করে আপনার ইনবক্স অথবা স্প্যাম (Spam) ফোল্ডার চেক করুন এবং লিংকে ক্লিক করুন।");
       }
     }
 
@@ -332,11 +356,25 @@
         return;
       }
 
+      const btn = document.getElementById('btn-update-pass');
+      btn.innerText = "পরিবর্তন হচ্ছে...";
+      btn.disabled = true;
+
       const { error } = await clientSupabase.auth.updateUser({ password: newPassword });
+      
+      btn.innerText = "পাসওয়ার্ড পরিবর্তন ও সংরক্ষণ";
+      btn.disabled = false;
+
       if (error) {
         alert("পাসওয়ার্ড পরিবর্তন হয়নি: " + error.message);
       } else {
-        alert("পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে! এখন লগইন করুন।");
+        alert("🎉 পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে! এখন আপনার নতুন পাসওয়ার্ড দিয়ে লগইন করুন।");
+        isResettingPassword = false;
+        
+        // URL থেকে পুরনো রিকভারি হ্যাশ মুছে ফেলা
+        window.history.replaceState(null, null, window.location.pathname);
+        
+        await clientSupabase.auth.signOut();
         showView('view-auth');
       }
     }
